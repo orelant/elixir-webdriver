@@ -32,7 +32,7 @@ defmodule WebDriver.Mixfile do
     [
       {:ibrowse,   "~> 4.2"},
       {:httpotion, "~> 2.1"},
-      {:poison,    "~> 2.0"},
+      {:poison,    "~> 1.5"},
       {:mock,      github: "jjh42/mock", only: :test},
       {:earmark,   "~>0.1.10", only: :dev},
       {:ex_doc,    "~>0.6", only: :dev}
