@@ -9,4 +9,4 @@
   "markdown": {:git, "git://github.com/devinus/markdown.git", "a428908a6dd88f351775d1d3da530a1a2aa0d6cb", []},
   "meck": {:git, "https://github.com/eproxus/meck.git", "dde759050eff19a1a80fd854d7375174b191665d", [tag: "0.8.2"]},
   "mock": {:git, "https://github.com/jjh42/mock.git", "275109db347caf3449b6d123bd4da720fb08b28e", []},
-  "poison": {:hex, :poison, "2.1.0"}}
+  "poison": {:hex, :poison, "1.5.2"}}
