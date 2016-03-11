@@ -1,6 +1,4 @@
 defmodule WebDriver.Protocol do
-  use Jazz
-
   @moduledoc """
     Implements the HTTP JSON wire protocol for WebDriver.
     This is the internal protocol and is supposed to be called via the
@@ -811,7 +809,7 @@ defmodule WebDriver.Protocol do
 
   defp post root_url, path_elements, params do
     url = url_for root_url, path_elements
-    json =  JSON.encode! params
+    json =  Poison.encode! params
     request = %Request{method: :POST, url: url,
          headers: ["Content-Type": "application/json;charset=UTF-8","Content-Length": byte_size(json)],
          body: json}
@@ -898,7 +896,7 @@ defmodule WebDriver.Protocol do
   end
 
   defp parse_response_body body do
-    build_response JSON.decode!(body)
+    build_response Poison.decode!(body)
   end
 
   defp build_response(%{"sessionId" => session_id, "status" => status, "value" => value })do
