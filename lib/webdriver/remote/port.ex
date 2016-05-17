@@ -32,8 +32,12 @@ defmodule WebDriver.Remote.Port do
   end
 
   def handle_call {:start_session, session_name}, _sender, state do
-    {:ok, pid} = :supervisor.start_child state.session_supervisor, [session_name]
-    {:reply, {:ok, pid}, %{state | sessions: [session_name | state.sessions]}}
+    case :supervisor.start_child(state.session_supervisor, [session_name]) do
+      {:ok, pid} ->
+        {:reply, {:ok, pid}, %{state | sessions: [session_name | state.sessions]}}
+      {:error, reason} ->
+        {:reply, {:error, reason}, state}
+    end
   end
 
   def handle_call :sessions, _sender, state do
