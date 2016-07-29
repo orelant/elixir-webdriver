@@ -31,7 +31,7 @@ defmodule WebDriver.Mixfile do
   defp deps do
     [
       {:ibrowse,   "~> 4.2"},
-      {:httpotion, "~> 2.1"},
+      {:httpotion, "~> 3.0.0"},
       {:poison,    "~> 1.5"},
       {:mock,      github: "jjh42/mock", only: :test},
       {:earmark,   "~>0.1.10", only: :dev},
