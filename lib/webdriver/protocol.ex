@@ -862,6 +862,16 @@ defmodule WebDriver.Protocol do
     end
   end
 
+  defp handle_response(%HTTPotion.ErrorResponse{ message: message }, root_url) do
+    if :application.get_env(:debug_browser) == {:ok, true} do
+      IO.inspect message
+    end
+
+    response = %Response{ status: 9, value: message }
+    { :failed_command, 9, response }
+  end
+
+
   defp handle_response(%HTTPotion.Response{body: body, status_code: status, headers: _headers}, _root_url)
       when status in 200..299 do
         if :application.get_env(:debug_browser) == {:ok, true} do
