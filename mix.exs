@@ -21,7 +21,7 @@ defmodule WebDriver.Mixfile do
     [
       mod: { WebDriver, []},
       registered:   [ :webdriver ],
-      applications: [ :httpotion, :poison ],
+      applications: [ :httpoison, :poison ],
       env: [ debug_browser: false ]
     ]
   end
@@ -30,8 +30,7 @@ defmodule WebDriver.Mixfile do
   # { :foobar, "0.1", git: "https://github.com/elixir-lang/foobar.git" }
   defp deps do
     [
-      {:ibrowse,   "~> 4.2"},
-      {:httpotion, "~> 3.0.0"},
+      {:httpoison, "~> 0.9.0"},
       {:poison,    "~> 1.5"},
       {:mock,      github: "jjh42/mock", only: :test},
       {:earmark,   "~>0.1.10", only: :dev},

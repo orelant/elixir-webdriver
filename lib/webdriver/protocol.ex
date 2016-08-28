@@ -848,21 +848,21 @@ defmodule WebDriver.Protocol do
     try do
       case request.method do
         :GET ->
-          HTTPotion.get(request.url, [headers: request.headers])
+          HTTPoison.get(request.url, request.headers)
         :POST ->
-          HTTPotion.post(request.url, [body: request.body, headers: request.headers])
+          HTTPoison.post(request.url, request.body, request.headers)
         :DELETE ->
-          HTTPotion.delete(request.url, [headers: request.headers])
+          HTTPoison.delete(request.url, request.headers)
       end |> handle_response(root_url) |> add_request(request)
     rescue
-      [HTTPotion.HTTPError, :econnrefused] ->
+      [HTTPoison.HTTPError, :econnrefused] ->
         # Try again a bit later cause Firefox is a sluggard.
         :timer.sleep(:random.uniform(1000) + 200)
         send_request root_url, request, (attempts + 1)
     end
   end
 
-  defp handle_response(%HTTPotion.ErrorResponse{ message: message }, root_url) do
+  defp handle_response({:error, %HTTPoison.Error{ reason: message }}, root_url) do
     if :application.get_env(:debug_browser) == {:ok, true} do
       IO.inspect message
     end
@@ -872,7 +872,7 @@ defmodule WebDriver.Protocol do
   end
 
 
-  defp handle_response(%HTTPotion.Response{body: body, status_code: status, headers: _headers}, _root_url)
+  defp handle_response({:ok, %HTTPoison.Response{body: body, status_code: status, headers: _headers}}, _root_url)
       when status in 200..299 do
         if :application.get_env(:debug_browser) == {:ok, true} do
           IO.inspect body
@@ -885,7 +885,7 @@ defmodule WebDriver.Protocol do
         end
   end
 
-  defp handle_response(%HTTPotion.Response{body: _body, status_code: status, headers: headers}, root_url)
+  defp handle_response({:ok, %HTTPoison.Response{body: _body, status_code: status, headers: headers}}, root_url)
       when status in 302..303 do
         # Cause some use upper case and some dont...
         url = Keyword.get(headers, :Location, Keyword.get(headers, :location))
@@ -894,12 +894,12 @@ defmodule WebDriver.Protocol do
         send_request root_url, request
   end
 
-  defp handle_response(%HTTPotion.Response{body: body, status_code: status, headers: _headers}, _root_url)
+  defp handle_response({:ok, %HTTPoison.Response{body: body, status_code: status, headers: _headers}}, _root_url)
      when status in 400..499 do
       {:invalid_request, status, body}
   end
 
-  defp handle_response(%HTTPotion.Response{body: body, status_code: status, headers: _headers}, _root_url)
+  defp handle_response({:ok, %HTTPoison.Response{body: body, status_code: status, headers: _headers}}, _root_url)
     when status in 500..599 do
      response = parse_response_body(body)
      {:failed_command, status, response}
