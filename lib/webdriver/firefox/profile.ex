@@ -1,6 +1,7 @@
 defmodule WebDriver.Firefox.Profile do
 
   @default_profile [
+    {"xpinstall.signatures.required", false},
     {"app.update.auto", false},
     {"app.update.enabled", false},
     {"browser.EULA.3.accepted", true},

@@ -1,5 +1,6 @@
 {
   "frozen": {
+    "xpinstall.signatures.required": false,
     "app.update.auto": false,
     "app.update.enabled": false,
     "browser.download.manager.showWhenStarting": false,
