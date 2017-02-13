@@ -844,15 +844,15 @@ defmodule WebDriver.Protocol do
       #IO.puts "HEADERS: #{request.headers}"
       IO.puts "BODY: #{request.body}"
     end
-
+    http_options = [recv_timeout: 60000, timeout: 60000]
     try do
       case request.method do
         :GET ->
-          HTTPoison.get(request.url, request.headers)
+          HTTPoison.get(request.url, request.headers, http_options)
         :POST ->
-          HTTPoison.post(request.url, request.body, request.headers)
+          HTTPoison.post(request.url, request.body, request.headers, http_options)
         :DELETE ->
-          HTTPoison.delete(request.url, request.headers)
+          HTTPoison.delete(request.url, request.headers, http_options)
       end |> handle_response(root_url) |> add_request(request)
     rescue
       [HTTPoison.HTTPError, :econnrefused] ->
@@ -862,9 +862,9 @@ defmodule WebDriver.Protocol do
     end
   end
 
-  defp handle_response({:error, %HTTPoison.Error{ reason: message }}, root_url) do
+  defp handle_response({:error, error = %HTTPoison.Error{ reason: message }}, root_url) do
     if :application.get_env(:debug_browser) == {:ok, true} do
-      IO.inspect message
+      IO.inspect "WebDriver HTTP Error: #{inspect({root_url, message})}" <> inspect(error)
     end
 
     response = %Response{ status: 9, value: message }
@@ -875,7 +875,7 @@ defmodule WebDriver.Protocol do
   defp handle_response({:ok, %HTTPoison.Response{body: body, status_code: status, headers: _headers}}, _root_url)
       when status in 200..299 do
         if :application.get_env(:debug_browser) == {:ok, true} do
-          IO.inspect body
+          IO.inspect "Response: " <> inspect(body)
         end
         # Chromedriver sends failed commands with a 200 status.
         response = parse_response_body(body)

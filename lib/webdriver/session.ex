@@ -767,6 +767,6 @@ defmodule WebDriver.Session do
   end
 
   defp cmd name, request do
-    :gen_server.call name, request, 20000
+    :gen_server.call name, request, 70000
   end
 end
