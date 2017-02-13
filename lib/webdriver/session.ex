@@ -760,7 +760,7 @@ defmodule WebDriver.Session do
   end
 
   defp get_value name, function do
-    case :gen_server.call name, function do
+    case :gen_server.call name, function, 20000 do
       {:ok, response} -> response.value
       response -> response
     end
