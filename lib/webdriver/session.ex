@@ -45,8 +45,8 @@ defmodule WebDriver.Session do
   @doc """
     Starts the session.
   """
-  def start_link state, name do
-    state = %{state | name: name}
+  def start_link state, name, session_desired_capabs do
+    state = %{state | name: name, desiredCapabilities: session_desired_capabs}
     :gen_server.start_link({:local, name}, __MODULE__ , state, [])
   end
 

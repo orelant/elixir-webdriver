@@ -108,8 +108,8 @@ defmodule WebDriver do
 
     Returns ```{:ok, pid}``` or ```{:error, reason}```
   """
-  def start_session browser, session_name do
-    :gen_server.call browser, {:start_session, session_name}
+  def start_session browser, session_name, session_desired_capabs \\ %{} do
+    :gen_server.call browser, {:start_session, session_name, session_desired_capabs}
   end
 
   @doc """

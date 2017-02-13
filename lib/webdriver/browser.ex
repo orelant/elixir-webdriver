@@ -25,8 +25,8 @@ defmodule WebDriver.Browser do
         { :ok, %{state | port: port}, :hibernate }
       end
 
-      def handle_call {:start_session, session_name}, _sender, state do
-        {:ok, pid} = :supervisor.start_child state.session_supervisor, [session_name]
+      def handle_call {:start_session, session_name, session_desired_capabs}, _sender, state do
+        {:ok, pid} = :supervisor.start_child state.session_supervisor, [session_name, session_desired_capabs]
         {:reply, {:ok, pid}, %{state | sessions: ([session_name | state.sessions])}}
       end
 
