@@ -79,8 +79,8 @@ defmodule WebDriver.Error do
     Convert a code number to a status code summary atom.
   """
   def summary code do
-    status_codes = Enum.into @status_codes, HashDict.new
-    {:ok, val} = HashDict.fetch status_codes, code
+    status_codes = Enum.into @status_codes, %{}
+    {:ok, val} = Map.fetch status_codes, code
     val
   end
 end

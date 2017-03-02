@@ -30,6 +30,10 @@ defmodule WebDriverChromeSessionTest do
 
 # Tests
 
+  test "chromedriver version" do
+    assert {"ChromeDriver 2.25" <> _rest, 0} = System.cmd("chromedriver", ["-v"])  
+  end
+
   test "status should show that the Session is up" do
     resp = WebDriver.Session.status(:cdtest)
     assert %{"build" => _, "os" => _} = resp
@@ -40,8 +44,10 @@ defmodule WebDriverChromeSessionTest do
   end
 
   test "sessions lists the sessions on the Session" do
-    # GET Sessions does not work on chrome!
-    assert {:invalid_request, 404, _, _ } = Session.sessions(:cdtest)
+    response = Session.sessions(:cdtest)
+    Enum.each response, fn(session) ->
+      assert %{"id" => _,"capabilities" =>_} = session
+    end
   end
 
   test "session returns the current session data" do
@@ -71,13 +77,13 @@ defmodule WebDriverChromeSessionTest do
   end
 
   test "window_handle" do
-    assert Regex.match? uuid_regexp, Session.window_handle :cdtest
+    assert Regex.match? uuid_regexp(), Session.window_handle :cdtest
   end
 
   test "window_handles" do
     handles = Session.window_handles :cdtest
     Enum.each handles, fn(handle) ->
-      assert Regex.match? uuid_regexp, handle
+      assert Regex.match? uuid_regexp(), handle
     end
   end
 
@@ -168,7 +174,7 @@ defmodule WebDriverChromeSessionTest do
     Session.url :cdtest, "http://example.com/index.html"
     check :set_cookie, ["cookie", "value", "/", "example.com"]
 
-    [ _, cookie ] = Session.cookies :cdtest
+    [ cookie ] = Session.cookies :cdtest
     assert cookie.domain == ".example.com"
     assert cookie.name == "cookie"
     assert cookie.value == "value"
@@ -181,7 +187,7 @@ defmodule WebDriverChromeSessionTest do
     # Chrome does not do localhost cookies..
     cookie = %WebDriver.Cookie{name: "cookie", value: "value", path: "/", domain: "example.com"}
     Session.set_cookie :cdtest, cookie
-    [ _, cookie ] = Session.cookies :cdtest
+    [ cookie ] = Session.cookies :cdtest
     assert cookie.domain == ".example.com"
     assert cookie.name == "cookie"
     assert cookie.value == "value"
@@ -202,7 +208,7 @@ defmodule WebDriverChromeSessionTest do
     Session.set_cookie :cdtest, cookie
     # This is a bit flakey. It seems Chrome takes a bit of time to delete the cookie but returns immediately.
     {:ok, _} = Session.delete_cookie :cdtest, "name"
-    assert [ _ ] = Session.cookies :cdtest
+    assert [] = Session.cookies :cdtest
   end
 
 

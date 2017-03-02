@@ -7,8 +7,8 @@ defmodule WebDriver.Mixfile do
       description: "Webdriver protocol for driving web browsers.",
       source_url: "https://github.com/stuart/elixir-webdriver",
       homepage_url: "http://stuart.github.io/elixir-webdriver",
-      package: package,
-      deps: deps,
+      package: package(),
+      deps: deps(),
       docs: [
         readme: true,
         main: "README"
@@ -30,11 +30,12 @@ defmodule WebDriver.Mixfile do
   # { :foobar, "0.1", git: "https://github.com/elixir-lang/foobar.git" }
   defp deps do
     [
-      {:httpoison, "~> 0.9.0"},
-      {:poison,    "~> 1.5"},
+      {:httpoison, "~> 0.11.0"},
+      {:poison,    "~> 3.1"},
       {:mock,      github: "jjh42/mock", only: :test},
-      {:earmark,   "~>0.1.10", only: :dev},
-      {:ex_doc,    "~>0.6", only: :dev}
+      {:earmark,   "~>1.1", only: :dev},
+      {:apex,      "~>1.0.0", only: :test},
+      {:ex_doc,    "~>0.15", only: :dev}
      ]
   end
 

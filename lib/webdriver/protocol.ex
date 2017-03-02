@@ -1,4 +1,7 @@
 defmodule WebDriver.Protocol do
+
+  import Apex, only: [ap: 1]
+
   @moduledoc """
     Implements the HTTP JSON wire protocol for WebDriver.
     This is the internal protocol and is supposed to be called via the
@@ -811,7 +814,7 @@ defmodule WebDriver.Protocol do
     url = url_for root_url, path_elements
     json =  Poison.encode! params
     request = %Request{method: :POST, url: url,
-         headers: ["Content-Type": "application/json;charset=UTF-8","Content-Length": byte_size(json)],
+         headers: ["Content-Type": "application/json;charset=UTF-8"],
          body: json}
 
     send_request root_url, request
@@ -839,10 +842,7 @@ defmodule WebDriver.Protocol do
   # Send the request to the underlying HTTP protocol.
   defp send_request root_url, request, attempts do
     if :application.get_env(:debug_browser) == {:ok, true} do
-      IO.puts "SENDING REQUEST: #{request.method}"
-      IO.puts "URL: #{request.url}"
-      #IO.puts "HEADERS: #{request.headers}"
-      IO.puts "BODY: #{request.body}"
+      debug_inspect(request)
     end
     http_options = [recv_timeout: 60000, timeout: 60000]
     try do
@@ -857,14 +857,14 @@ defmodule WebDriver.Protocol do
     rescue
       [HTTPoison.HTTPError, :econnrefused] ->
         # Try again a bit later cause Firefox is a sluggard.
-        :timer.sleep(:random.uniform(1000) + 200)
+        :timer.sleep(:rand.uniform(1000) + 200)
         send_request root_url, request, (attempts + 1)
     end
   end
 
-  defp handle_response({:error, error = %HTTPoison.Error{ reason: message }}, root_url) do
+  defp handle_response({:error, error = %HTTPoison.Error{ reason: message }}, _root_url) do
     if :application.get_env(:debug_browser) == {:ok, true} do
-      IO.inspect "WebDriver HTTP Error: #{inspect({root_url, message})}" <> inspect(error)
+      debug_inspect(error)
     end
 
     response = %Response{ status: 9, value: message }
@@ -872,10 +872,10 @@ defmodule WebDriver.Protocol do
   end
 
 
-  defp handle_response({:ok, %HTTPoison.Response{body: body, status_code: status, headers: _headers}}, _root_url)
+  defp handle_response({:ok, http_response = %HTTPoison.Response{body: body, status_code: status, headers: _headers}}, _root_url)
       when status in 200..299 do
         if :application.get_env(:debug_browser) == {:ok, true} do
-          IO.inspect "Response: " <> inspect(body)
+          debug_inspect(http_response)
         end
         # Chromedriver sends failed commands with a 200 status.
         response = parse_response_body(body)
@@ -894,13 +894,19 @@ defmodule WebDriver.Protocol do
         send_request root_url, request
   end
 
-  defp handle_response({:ok, %HTTPoison.Response{body: body, status_code: status, headers: _headers}}, _root_url)
+  defp handle_response({:ok, http_response = %HTTPoison.Response{body: body, status_code: status, headers: _headers}}, _root_url)
      when status in 400..499 do
+        if :application.get_env(:debug_browser) == {:ok, true} do
+          debug_inspect(http_response)
+        end
       {:invalid_request, status, body}
   end
 
-  defp handle_response({:ok, %HTTPoison.Response{body: body, status_code: status, headers: _headers}}, _root_url)
+  defp handle_response({:ok, http_response = %HTTPoison.Response{body: body, status_code: status, headers: _headers}}, _root_url)
     when status in 500..599 do
+        if :application.get_env(:debug_browser) == {:ok, true} do
+          debug_inspect(http_response)
+        end
      response = parse_response_body(body)
      {:failed_command, status, response}
   end
@@ -928,5 +934,17 @@ defmodule WebDriver.Protocol do
 
   defp add_request {:invalid_request, status, response}, request do
     {:invalid_request, status, response, request}
+  end
+
+  #defp debug_inspect(obj = %WebDriver.Protocol.Request{body: body = "{" <> _rest}) do
+    #ap %{obj | body: Poison.decode!(body)}
+  #end
+
+  #defp debug_inspect(obj = %HTTPoison.Response{body: body = "{" <> _rest}) do
+    #ap %{obj | body: Poison.decode!(body)}
+  #end
+
+  defp debug_inspect(obj) do
+    ap obj
   end
 end

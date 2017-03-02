@@ -84,13 +84,13 @@ defmodule WebDriverPhantomJSSessionTest do
   end
 
   test "window_handle" do
-    assert Regex.match? uuid_regexp, Session.window_handle :test
+    assert Regex.match? uuid_regexp(), Session.window_handle :test
   end
 
   test "window_handles" do
     handles = Session.window_handles :test
     Enum.each handles, fn(handle) ->
-      assert Regex.match? uuid_regexp, handle
+      assert Regex.match? uuid_regexp(), handle
     end
   end
 

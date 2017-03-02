@@ -65,13 +65,13 @@ defmodule WebDriverFirefoxSessionTest do
   end
 
   test "window_handle" do
-    assert Regex.match? uuid_regexp, Session.window_handle :fftest
+    assert Regex.match? uuid_regexp(), Session.window_handle :fftest
   end
 
   test "window_handles" do
     handles = Session.window_handles :fftest
     Enum.each handles, fn(handle) ->
-      assert Regex.match? uuid_regexp, handle
+      assert Regex.match? uuid_regexp(), handle
     end
   end
 

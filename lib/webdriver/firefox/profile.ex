@@ -72,16 +72,16 @@ defmodule WebDriver.Firefox.Profile do
 
 
   def default_profile do
-    @default_profile |> Enum.into(HashDict.new)
+    @default_profile |> Enum.into(%{})
   end
 
   def to_user_js profile do
     Enum.map(profile, fn({k,v}) -> "user_pref(\"#{k}\", #{quote_string(v)});" end)
-    |> Enum.join "\n"
+    |> Enum.join("\n")
   end
 
   def set_port(profile, port) when is_number(port) and port > 0 do
-    HashDict.put profile, Keyword.get(@webdriver_prefs, :port), port
+    Map.put profile, Keyword.get(@webdriver_prefs, :port), port
   end
 
   def set_port(profile, _port) do
@@ -101,15 +101,6 @@ defmodule WebDriver.Firefox.Profile do
 
   def install_extension destination, source do
     if !File.regular?(source) do
-      IO.puts """
-      =====================================================
-
-      Webdriver plugin for firefox not found at:
-        #{source}
-      Run `mix webdriver.firefox.install` to install it.
-
-      =====================================================
-      """
       raise RuntimeError, "Webdriver plugin for firefox not found at:\n#{source}.\nRun `mix webdriver.firefox.install` to install it."
     end
     destination = Path.join [destination,"extensions","fxdriver@googlecode.com"]
@@ -118,14 +109,14 @@ defmodule WebDriver.Firefox.Profile do
   end
 
   def make_temp_directory do
-    dir = Path.join(System.tmp_dir, "webdriver-firefox-profile#{random_extension}")
+    dir = Path.join(System.tmp_dir, "webdriver-firefox-profile#{random_extension()}")
     :ok = File.mkdir_p dir
     dir
   end
 
   # Generate a filename safe random string.
   defp random_extension do
-    Regex.replace(~r/[=\/+]/, :base64.encode(:crypto.rand_bytes(8)), "")
+    Regex.replace(~r/[=\/+]/, :base64.encode(:crypto.strong_rand_bytes(8)), "")
     |> String.downcase
   end
 
